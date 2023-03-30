@@ -1,0 +1,120 @@
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.Scanner;
+
+public class ToyStore {
+    private List<Toy> toys;
+    private List<Toy> prizeToys;
+
+    public ToyStore() {
+        toys = new ArrayList<>();
+        prizeToys = new ArrayList<>();
+    }
+
+    public void addToy(Toy toy) {
+        toys.add(toy);
+    }
+
+    public void setToyFrequency(int id, double frequency) {
+        for (Toy toy : toys) {
+            if (toy.getId() == id) {
+                toy.setFrequency(frequency);
+                break;
+            }
+        }
+    }
+
+    public void drawToys(int numPrizes) {
+        double totalFrequency = 0;
+        for (Toy toy : toys) {
+            totalFrequency += toy.getFrequency();
+        }
+
+        Random rand = new Random();
+        for (int i = 0; i < numPrizes; i++) {
+            double r = rand.nextDouble() * totalFrequency;
+            double sum = 0;
+            for (Toy toy : toys) {
+                sum += toy.getFrequency();
+                if (r <= sum) {
+                    prizeToys.add(toy);
+                    break;
+                }
+            }
+        }
+    }
+
+    public Toy getPrizeToy() {
+        if (prizeToys.isEmpty()) {
+            return null;
+        } else {
+            Toy toy = prizeToys.get(0);
+            prizeToys.remove(0);
+            return toy;
+        }
+    }
+
+    public void savePrizeToys() throws IOException {
+        PrintWriter writer = new PrintWriter(new FileWriter("prize_toys.txt"));
+        for (Toy toy : prizeToys) {
+            writer.printf("%d,%s,%.2f\n", toy.getId(), toy.getTitle(), toy.getFrequency());
+        }
+        writer.close();
+    }
+
+    public static void main(String[] args) {
+        ToyStore store = new ToyStore();
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.print("Enter command (add, set, draw, get, quit): ");
+            String command = scanner.nextLine();
+            if (command.equals("add")) {
+                System.out.print("Enter toy id: ");
+                int id = Integer.parseInt(scanner.nextLine());
+                System.out.print("Enter toy title: ");
+                String title = scanner.nextLine();
+                System.out.print("Enter toy frequency (0.0-1.0): ");
+                double frequency = Double.parseDouble(scanner.nextLine());
+                Toy toy = new Toy(id, title, frequency);
+                store.addToy(toy);
+                System.out.println("Toy added.");
+            } else if (command.equals("set")) {
+                System.out.print("Enter toy id: ");
+                int id = Integer.parseInt(scanner.nextLine());
+                System.out.print("Enter toy frequency (0.0-1.0): ");
+                double frequency = Double.parseDouble(scanner.nextLine());
+                store.setToyFrequency(id, frequency);
+                System.out.println("Toy frequency updated.");
+            } else if (command.equals("draw")) {
+                System.out.print("Enter number of prize toys to draw: ");
+                int numPrizes = Integer.parseInt(scanner.nextLine());
+                store.drawToys(numPrizes);
+                System.out.printf("%d prize toys drawn.\n", numPrizes);
+            } else if (command.equals("get")) {
+                Toy toy = store.getPrizeToy();
+                if (toy == null) {
+                    System.out.println("No prize toys remaining.");
+                } else {
+                    System.out.printf("Prize toy: %s\n", toy.getTitle
+                } else if (command.equals("quit")) {
+                    System.out.println("Saving prize toys...");
+                    try {
+                        store.savePrizeToys();
+                    } catch (IOException e) {
+                        System.err.println("Error saving prize toys: " + e.getMessage());
+                    }
+                    System.out.println("Exiting program.");
+                    break;
+                } else {
+                    System.out.println("Invalid command.");
+                }
+            }
+            scanner.close();
+        }
+    }
+    

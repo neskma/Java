@@ -1,7 +1,6 @@
 import csv
 import datetime
 
-
 notes = []
 
 def create_note():
